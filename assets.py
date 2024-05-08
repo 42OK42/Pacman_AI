@@ -1,5 +1,5 @@
 from rendering import load_and_scale_image
-from settings import original_tile_size, scale_factor
+from settings import scale_factor
 
 # Bilder laden und Größe anpassen
 player_image = load_and_scale_image('assets/images/player.png', scale_factor/10)

@@ -1,5 +1,5 @@
 import pygame
-from settings import tile_size, info_panel_width
+from settings import tile_size, info_panel_width, opponent_speed
 from level import level_map
 
 
@@ -60,6 +60,19 @@ def move_player(position, direction):
 	elif direction == 'right':
 		x += tile_size
 	return x, y
+
+def move_opponent(position, direction):
+	x, y = position
+	if direction == 'up':
+		y -= opponent_speed
+	elif direction == 'down':
+		y += opponent_speed
+	elif direction == 'left':
+		x -= opponent_speed
+	elif direction == 'right':
+		x += opponent_speed
+	return x, y
+
 
 def is_walkable(target_pos, level_map, coins_remaining):
 	map_x, map_y = target_pos[0] // tile_size, target_pos[1] // tile_size

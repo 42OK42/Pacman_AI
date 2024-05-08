@@ -1,10 +1,11 @@
 import pygame
 import sys
-from settings import info_panel_width, BLACK, WHITE, message_background_color, font
+from settings import info_panel_width, BLACK, WHITE, win_message_background_color, font, opponent_time_to_move, lose_message_background_color
 from rendering import render_text, render_text_center
 from assets import coin_image, end_image, player_image, opponent_image
 from level import load_level, draw_level
 from game_functions import screen_width, screen_height, level_map, move_player, collect_coins, is_walkable, opponent_positions, player_position, coin_positions, end_position, total_coins, coins_collected
+from opponent import move_opponent_randomly, opponent_move_time, check_collision
 
 # Globale Variablen
 
@@ -18,10 +19,28 @@ level_map = load_level('level.txt', )
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Labyrinth-Spiel")
 
+opponent_move_time = pygame.time.get_ticks()
+
 # Spiel-Hauptschleife
 running = True
 while running:
 	# Ereignisse durchlaufen
+	current_time = pygame.time.get_ticks()
+	if current_time - opponent_move_time > opponent_time_to_move:  # 1000 Millisekunden (1 Sekunde)	
+		for i, pos in enumerate(opponent_positions):
+			new_position = move_opponent_randomly(pos, level_map)
+			if new_position:
+				opponent_positions[i] = new_position
+				screen.blit(opponent_image, opponent_positions[i])
+				if check_collision(player_position, opponent_positions[i]):
+					message_background = pygame.Rect(0, screen_height // 2 - 30, screen_width, 60)
+					pygame.draw.rect(screen, lose_message_background_color, message_background)
+					# Nachricht rendern und auf den Bildschirm zeichnen
+					render_text_center("Spieler gestorben", font, (255, 255, 255), screen, screen_height // 2)
+					pygame.display.update()  # Aktualisieren des Displays nach dem Rendern des Textes
+					pygame.time.delay(5000)  # Warten für 5 Sekunden
+					running = False
+				opponent_move_time = current_time
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
@@ -58,7 +77,7 @@ while running:
 	# Zeichnen Sie den Spieler (Pacman)
 	screen.blit(player_image, player_position)
 
-	
+
 	# Überprüfen, ob das Level abgeschlossen ist
 	if len(coin_positions) == 0 and player_position == end_position:
 		level_complete = True
@@ -66,7 +85,7 @@ while running:
 		pygame.time.delay(500)  # Warten für 0,5 Sekunden
 		# Hintergrund für die Nachricht zeichnen
 		message_background = pygame.Rect(0, screen_height // 2 - 30, screen_width, 60)
-		pygame.draw.rect(screen, message_background_color, message_background)
+		pygame.draw.rect(screen, win_message_background_color, message_background)
 		# Nachricht rendern und auf den Bildschirm zeichnen
 		render_text_center("Herzlichen Glückwunsch, Level geschafft!", font, (255, 255, 255), screen, screen_height // 2)
 		pygame.display.update()  # Aktualisieren des Displays nach dem Rendern des Textes

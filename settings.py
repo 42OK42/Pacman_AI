@@ -7,6 +7,9 @@ scale_factor = 2.0
 original_tile_size = 50  # Die ursprüngliche Größe der Kachel
 original_info_panel_width = 200  # Die ursprüngliche Breite des Info-Panels
 
+opponent_speed = 100  # Geschwindigkeit des Gegners
+opponent_time_to_move = 1000  # Zeit in Millisekunden, um den Gegner zu bewegen
+
 # Farbdefinitionen
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -33,7 +36,8 @@ MINT = (189, 252, 201)
 LAVENDER = (230, 230, 250)
 
 # Nachricht Hintergrundfarbe
-message_background_color = (GOLD)
+win_message_background_color = (GOLD)
+lose_message_background_color = (RED)
 
 # Schriften
 pygame.font.init()
