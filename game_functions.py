@@ -69,5 +69,5 @@ def is_walkable(target_pos, level_map, coins_remaining):
 		if tile == 'E' and coins_remaining == 0:
 			return True
 		# Andere begehbare Felder
-		return tile in ['B', 'C']
+		return tile in ['B', 'C', 'P', 'E']
 	return False
