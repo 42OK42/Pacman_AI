@@ -2,7 +2,7 @@ import pygame
 import sys
 from settings import info_panel_width, BLACK, WHITE, message_background_color, font
 from rendering import render_text, render_text_center
-from assets import coin_image, end_image, pacman_image, opponent_image
+from assets import coin_image, end_image, player_image, opponent_image
 from level import load_level, draw_level
 from game_functions import screen_width, screen_height, level_map, move_player, collect_coins, is_walkable, opponent_positions, player_position, coin_positions, end_position, total_coins, coins_collected
 
@@ -56,7 +56,7 @@ while running:
 	for opponent_pos in opponent_positions:
 		screen.blit(opponent_image, opponent_pos)
 	# Zeichnen Sie den Spieler (Pacman)
-	screen.blit(pacman_image, player_position)
+	screen.blit(player_image, player_position)
 
 	
 	# Überprüfen, ob das Level abgeschlossen ist
