@@ -10,6 +10,9 @@ original_info_panel_width = 200  # Die ursprüngliche Breite des Info-Panels
 opponent_speed = 100  # Geschwindigkeit des Gegners
 opponent_time_to_move = 1000  # Zeit in Millisekunden, um den Gegner zu bewegen
 
+bullet_speed = 100 # Geschwindigkeit der Kugel
+bullet_move_interval = 100 # Intervall in Millisekunden, in dem die Kugeln bewegt werden
+
 # Farbdefinitionen
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -34,6 +37,9 @@ SILVER = (192, 192, 192)
 BEIGE = (245, 245, 220)
 MINT = (189, 252, 201)
 LAVENDER = (230, 230, 250)
+
+# Hintergrundfarbe
+background_color = (BEIGE)
 
 # Nachricht Hintergrundfarbe
 win_message_background_color = (GOLD)

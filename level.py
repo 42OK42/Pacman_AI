@@ -1,5 +1,5 @@
 from assets import wall_image
-from settings import BLACK, original_tile_size, scale_factor
+from settings import BLACK, original_tile_size, scale_factor, background_color
 
 
 # Funktion zum Laden des Levels aus einer Datei
@@ -20,4 +20,4 @@ def draw_level(screen, level_map):
 			if tile == 'W':
 				screen.blit(wall_image, position)
 			else:
-				screen.fill(BLACK, (position, (tile_size, tile_size)))
+				screen.fill(background_color, (position, (tile_size, tile_size)))

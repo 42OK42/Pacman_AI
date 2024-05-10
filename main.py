@@ -1,13 +1,13 @@
 import pygame
 import sys
-from settings import info_panel_width, BLACK, WHITE, win_message_background_color, font, opponent_time_to_move, lose_message_background_color
+import globals
+from settings import info_panel_width, BLACK, WHITE, win_message_background_color, font, opponent_time_to_move, lose_message_background_color, bullet_move_interval
 from rendering import render_text, render_text_center
-from assets import coin_image, end_image, player_image, opponent_image
+from assets import coin_image, end_image, player_image, opponent_image, bullet_image
 from level import load_level, draw_level
-from game_functions import screen_width, screen_height, level_map, move_player, collect_coins, is_walkable, opponent_positions, player_position, coin_positions, end_position, total_coins, coins_collected
-from opponent import move_opponent_randomly, opponent_move_time, check_collision
-
-# Globale Variablen
+from game_functions import screen_width, screen_height, level_map, move_player, collect_coins, is_walkable, opponent_positions, player_position, coin_positions, end_position, total_coins, coins_collected, calculate_new_position_opponent
+from opponent import move_opponent_smartly, check_collision, check_bullet_collision
+from bullet import bullets
 
 # Initialisierung von Pygame
 pygame.init()
@@ -15,32 +15,41 @@ pygame.init()
 
 level_map = load_level('level.txt', )
 
+#print (level_map)
+
 # Fenstergröße und Titel einstellen
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Labyrinth-Spiel")
+pygame.display.set_caption("Pacman-Spiel")
 
 opponent_move_time = pygame.time.get_ticks()
+
+bullet_move_time = pygame.time.get_ticks()  # Initialisierung des Timers für die Kugelbewegung
+
+directions = ['up', 'down', 'left', 'right']
+for direction in directions:
+	new_position = calculate_new_position_opponent(opponent_positions[0], direction)
+	if is_walkable(new_position, level_map, len(coin_positions)):
+		globals.current_direction_opponent = direction
+		break
+
 
 # Spiel-Hauptschleife
 running = True
 while running:
-	# Ereignisse durchlaufen
 	current_time = pygame.time.get_ticks()
-	if current_time - opponent_move_time > opponent_time_to_move:  # 1000 Millisekunden (1 Sekunde)	
+	if current_time - opponent_move_time > opponent_time_to_move:  # Gegnerbewegung basierend auf Zeitintervall
 		for i, pos in enumerate(opponent_positions):
-			new_position = move_opponent_randomly(pos, level_map)
+			new_position = move_opponent_smartly(pos, player_position, level_map, bullets)
+			if check_collision(player_position, opponent_positions[i]):
+				message_background = pygame.Rect(0, screen_height // 2 - 30, screen_width, 60)
+				pygame.draw.rect(screen, lose_message_background_color, message_background)
+				render_text_center("Spieler gestorben", font, (255, 255, 255), screen, screen_height // 2)
+				pygame.display.update()
+				pygame.time.delay(5000)  # Warten für 5 Sekunden
 			if new_position:
 				opponent_positions[i] = new_position
 				screen.blit(opponent_image, opponent_positions[i])
-				if check_collision(player_position, opponent_positions[i]):
-					message_background = pygame.Rect(0, screen_height // 2 - 30, screen_width, 60)
-					pygame.draw.rect(screen, lose_message_background_color, message_background)
-					# Nachricht rendern und auf den Bildschirm zeichnen
-					render_text_center("Spieler gestorben", font, (255, 255, 255), screen, screen_height // 2)
-					pygame.display.update()  # Aktualisieren des Displays nach dem Rendern des Textes
-					pygame.time.delay(5000)  # Warten für 5 Sekunden
-					running = False
-				opponent_move_time = current_time
+			opponent_move_time = current_time
 	for event in pygame.event.get():
 		if event.type == pygame.QUIT:
 			running = False
@@ -60,10 +69,33 @@ while running:
 				player_position = new_position
 				# Münzen sammeln, wenn auf Münzenposition bewegt
 				coin_positions = collect_coins(player_position, coin_positions)
-				
+		
+		# Bewegung der Kugeln steuern
+	if current_time - bullet_move_time > bullet_move_interval:
+		for bullet in bullets[:]:  # Kopie der Liste für sichere Iteration
+			if not bullet.move(level_map):
+				bullets.remove(bullet)
+			else:
+				screen.blit(bullet_image, bullet.position)
+				#check bullet collision with player
+				if check_bullet_collision(player_position, bullet.position):
+					message_background = pygame.Rect(0, screen_height // 2 - 30, screen_width, 60)
+					pygame.draw.rect(screen, lose_message_background_color, message_background)
+					render_text_center("Spieler gestorben", font, (255, 255, 255), screen, screen_height // 2)
+					pygame.display.update()
+					pygame.time.delay(5000)  # Warten für 5 Sekunden
+					running = False
+		bullet_move_time = current_time  # Timer zurücksetzen
+	
+		pygame.display.update()
+
 	# Bildschirm aktualisieren
 	screen.fill(BLACK)
 	draw_level(screen, level_map)
+
+	# Kugeln zeichnen
+	for bullet in bullets:
+		screen.blit(bullet_image, bullet.position)
 
 	# Münzen zeichnen (mit Bild)
 	for coin_pos in coin_positions:

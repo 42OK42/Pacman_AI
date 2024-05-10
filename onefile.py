@@ -2,6 +2,7 @@ import pygame
 import sys
 
 # Globale Variablen
+global current_direction_opponent
 scale_factor = 2.0
 player_position = None
 coin_positions = []

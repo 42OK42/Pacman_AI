@@ -61,7 +61,7 @@ def move_player(position, direction):
 		x += tile_size
 	return x, y
 
-def move_opponent(position, direction):
+def calculate_new_position_opponent(position, direction):
 	x, y = position
 	if direction == 'up':
 		y -= opponent_speed
@@ -72,6 +72,14 @@ def move_opponent(position, direction):
 	elif direction == 'right':
 		x += opponent_speed
 	return x, y
+
+def calculate_direction(from_pos, to_pos):
+	dx = to_pos[0] - from_pos[0]
+	dy = to_pos[1] - from_pos[1]
+	if abs(dx) > abs(dy):
+		return 'right' if dx > 0 else 'left'
+	else:
+		return 'down' if dy > 0 else 'up'
 
 
 def is_walkable(target_pos, level_map, coins_remaining):
