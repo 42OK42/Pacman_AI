@@ -3,15 +3,24 @@ import pygame
 # Skalierungsfaktor für die Größe des Spiels
 scale_factor = 2.0
 
+debug_opponent = False
+debug_main = False
+debug_game_functions = False
+debug_bullet = False
+
 # Originalgrößen
 original_tile_size = 50  # Die ursprüngliche Größe der Kachel
 original_info_panel_width = 200  # Die ursprüngliche Breite des Info-Panels
+tile_size = int(original_tile_size * scale_factor)  # Skalierte Kachelgröße
+info_panel_width = int(original_info_panel_width * scale_factor) 
 
-opponent_speed = 100  # Geschwindigkeit des Gegners
+opponent_step_size = tile_size  # Geschwindigkeit des Gegners
 opponent_time_to_move = 1000  # Zeit in Millisekunden, um den Gegner zu bewegen
 
-bullet_speed = 100 # Geschwindigkeit der Kugel
-bullet_move_interval = 100 # Intervall in Millisekunden, in dem die Kugeln bewegt werden
+shoot_interval_opponet = 1000
+
+bullet_step_size = tile_size # Geschwindigkeit der Kugel
+bullet_move_interval = 200 # Intervall in Millisekunden, in dem die Kugeln bewegt werden
 
 # Farbdefinitionen
 BLACK = (0, 0, 0)
@@ -48,6 +57,3 @@ lose_message_background_color = (RED)
 # Schriften
 pygame.font.init()
 font = pygame.font.SysFont("Arial", 36)
-
-tile_size = int(original_tile_size * scale_factor)  # Skalierte Kachelgröße
-info_panel_width = int(original_info_panel_width * scale_factor) 
