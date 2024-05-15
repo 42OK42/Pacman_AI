@@ -152,6 +152,7 @@ class Opponent:
 		#current_time = pygame.time.get_ticks()
 		if self.line_of_sight(player_position) and (current_time - self.last_shot_time > self.shoot_interval_opponet):
 			self.last_shot_time = current_time
+			self.last_seen_player_position = player_position
 			bullet = self.fire_bullet(updated_rects)
 			return True
 		return False
@@ -176,9 +177,11 @@ class Opponent:
 		return True  # Keine Hindernisse gefunden, Sichtlinie ist klar
 
 	def fire_bullet(self, updated_rects):
-		#print("self.last_seen_player_position", self.last_seen_player_position)
 		print("self.position", self.position)
+		print("self.last_seen_player_position", self.last_seen_player_position)
 		direction = calculate_direction(self.position, self.last_seen_player_position)
+		print("self.position", self.position)
+		print("direction", direction)
 		bullet_start_position = Bullet.calculate_bullet_start_position(self.position, direction)
 		print("bullet_start_position", bullet_start_position)
 		new_bullet = Bullet(bullet_start_position, direction, bullet_step_size // 100)

@@ -3,6 +3,10 @@ import pygame
 # Skalierungsfaktor für die Größe des Spiels
 scale_factor = 2.0
 
+AI_MODE = False # Setze dies auf False, um den manuellen Spielmodus zu aktivieren
+
+RENDER = True  # Setze dies auf False, um das Rendering während des Trainings zu deaktivieren. Geht nur wenn AI_MODE = True
+
 debug_opponent = False
 debug_main = False
 debug_game_functions = False
@@ -20,7 +24,7 @@ opponent_time_to_move = 1000  # Zeit in Millisekunden, um den Gegner zu bewegen
 shoot_interval_opponet = 1000
 
 bullet_step_size = tile_size # Geschwindigkeit der Kugel
-bullet_move_interval = 200 # Intervall in Millisekunden, in dem die Kugeln bewegt werden
+bullet_move_interval = 300 # Intervall in Millisekunden, in dem die Kugeln bewegt werden
 
 # Farbdefinitionen
 BLACK = (0, 0, 0)

@@ -30,9 +30,9 @@ class Bullet:
 		current_time = pygame.time.get_ticks()
 		if current_time - self.move_time > bullet_move_interval:
 			for _ in range(self.step_size):
-				print("bullet position", self.position)
+				#print("bullet position", self.position)
 				new_position = calculate_new_position_opponent(self.position, self.direction)
-				print("new position", new_position)
+				#print("new position", new_position)
 				if is_walkable_player(new_position, level_map, len(coin_positions)):
 					self.position = new_position
 					self.move_time = current_time
