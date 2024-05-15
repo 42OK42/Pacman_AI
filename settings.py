@@ -3,7 +3,7 @@ import pygame
 # Skalierungsfaktor für die Größe des Spiels
 scale_factor = 2.0
 
-AI_MODE = False # Setze dies auf False, um den manuellen Spielmodus zu aktivieren
+AI_MODE = True # Setze dies auf False, um den manuellen Spielmodus zu aktivieren
 
 RENDER = True  # Setze dies auf False, um das Rendering während des Trainings zu deaktivieren. Geht nur wenn AI_MODE = True
 

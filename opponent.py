@@ -121,6 +121,8 @@ class Opponent:
 		return False
 	
 	def move_smartly(self, player_position):
+		#print("self.position_movesmartly", self.position)
+		print("player_position_movesmartly", player_position)
 		current_time = pygame.time.get_ticks()
 		moved = False
 		old_position = self.position  # Speichere die alte Position für das Neuzeichnen

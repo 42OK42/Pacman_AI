@@ -12,7 +12,7 @@ from player_controlled import run_player_controlled_game
 def main():
 	# Initialisiere die Spielumgebung
 	env = CustomGameEnv()
-	obs = env.reset()
+	#obs = env.reset()
 
 	if AI_MODE:
 		print("AI-Modus aktiviert")
@@ -39,14 +39,16 @@ def main():
 
 			# Führe einen Schritt aus basierend auf der Aktion oder führe eine Standardaktion aus
 			if action is not None:
+				print("Aktion:", action)
 				obs, reward, done, info = env.step(action)
 			else:
 				# Führe eine "Neutrale" Aktion aus, um das Spiel zu aktualisieren, auch wenn keine Eingabe erfolgt
-				obs, reward, done, info = env.step(0)  # annehmen, dass Aktion 0 eine neutrale Aktion ist
+				obs, reward, done, info = env.step(-1)  # annehmen, dass Aktion 0 eine neutrale Aktion ist
 
 			if done:
 				print("Spiel beendet, Neustart...")
-				obs = env.reset()  # Reset, wenn das Spiel beendet ist
+				#obs = env.reset()  # Reset, wenn das Spiel beendet ist
+				running = False
 
 			if RENDER:
 				env.render()  # Aktualisiere die grafische Darstellung des Spiels
