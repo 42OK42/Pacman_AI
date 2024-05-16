@@ -149,12 +149,12 @@ class CustomGameEnv(gym.Env):
 		for opponent in self.opponents:
 			for bullet in list(opponent.bullets):
 				# Bestimme die alte Position des Geschosses für das Update-Rect
-				old_rect = pygame.Rect(bullet.position[0], bullet.position[1], 100, 100)
+				old_rect = pygame.Rect(bullet.position[0], bullet.position[1], bullet.width, bullet.height)
 
 				if pygame.time.get_ticks() - bullet.move_time > bullet_move_interval:
 					if bullet.move(self.level_map):
 						# Bestimme die neue Position des Geschosses für das Update-Rect
-						new_rect = pygame.Rect(bullet.position[0], bullet.position[1], 100, 100)
+						new_rect = pygame.Rect(bullet.position[0], bullet.position[1], bullet.width, bullet.height)
 
 						# Füge sowohl das alte als auch das neue Rect zu updated_rects hinzu
 						self.updated_rects.append(old_rect)
@@ -220,6 +220,8 @@ class CustomGameEnv(gym.Env):
 
 	def calculate_reward(self):
 		reward = 0
+		if self.coins_collected > 0:
+			reward += self.coins_collected * 5  # Belohnung für das Sammeln von Münzen
 
 		# Belohnung für das Erreichen des Endes, wenn alle Münzen gesammelt wurden
 		if self.player_position == self.exit_position and not self.coin_positions:

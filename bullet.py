@@ -12,6 +12,8 @@ class Bullet:
 		self.step_size = bullet_step_size
 		current_time = pygame.time.get_ticks()
 		self.move_time = current_time
+		self.width = 100
+		self.height = 100
 
 	def calculate_bullet_start_position(opponent_position, direction):
 		x, y = opponent_position
