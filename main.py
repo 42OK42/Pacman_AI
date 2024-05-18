@@ -1,5 +1,5 @@
 import pygame
-from settings import BLACK, WHITE, font, tile_size, debug_opponent, win_message_background_color, info_panel_width, bullet_move_interval, background_color
+from settings import BLACK, WHITE, font, tile_size, debug_opponent, win_message_background_color, info_panel_width, bullet_move_interval, background_color, LOAD_MODEL, num_parallel_models
 from rendering import render_text_center, render_text
 from assets import coin_image, end_image, player_image, opponent_image, bullet_image
 from level import load_level, draw_level_partially
@@ -8,54 +8,41 @@ from settings import RENDER, AI_MODE
 from game_functions import screen_width, screen_height
 from custom_game_env import CustomGameEnv
 from player_controlled import run_player_controlled_game
+from stable_baselines3 import PPO
+from stable_baselines3.common.env_util import make_vec_env
+from stable_baselines3.common.evaluation import evaluate_policy
+from stable_baselines3.common.vec_env import SubprocVecEnv
 
 def main():
-	# Initialisiere die Spielumgebung
-	env = CustomGameEnv()
-	#obs = env.reset()
-
 	if AI_MODE:
-		print("AI-Modus aktiviert")
-		running = True
-		while running:
-			# Verarbeite Spielerinputs
-			action = None
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					running = False
-				elif event.type == pygame.KEYDOWN:
-					if event.key == pygame.K_ESCAPE:
-						running = False
+		if not LOAD_MODEL:
+			# Trainiere ein neues Modell
+			num_envs = num_parallel_models
+			vec_env = make_vec_env(lambda: CustomGameEnv(), n_envs=num_envs)
+			model = PPO("MlpPolicy", vec_env, verbose=1)
+			model.learn(total_timesteps=200000)
+			model.save("ppo_customgame")
+			vec_env.close()
+		else:
+			# Lade und rendere das trainierte Modell
+			render_trained_model()
 
-					# Mappe Tastatureingaben auf Aktionen
-					action_map = {
-						pygame.K_w: 0,  # Oben
-						pygame.K_s: 1,  # Unten
-						pygame.K_a: 2,  # Links
-						pygame.K_d: 3   # Rechts
-					}
-					if event.key in action_map:
-						action = action_map[event.key]
-
-			# Führe einen Schritt aus basierend auf der Aktion oder führe eine Standardaktion aus
-			if action is not None:
-				print("Aktion:", action)
-				obs, reward, done, info = env.step(action)
-			else:
-				# Führe eine "Neutrale" Aktion aus, um das Spiel zu aktualisieren, auch wenn keine Eingabe erfolgt
-				obs, reward, done, info = env.step(-1)  # annehmen, dass Aktion 0 eine neutrale Aktion ist
-
-			if done:
-				print("Spiel beendet, Neustart...")
-				#obs = env.reset()  # Reset, wenn das Spiel beendet ist
-				running = False
-
-			if RENDER:
-				env.render()  # Aktualisiere die grafische Darstellung des Spiels
-
-		env.close()  # Schließe die Umgebung, wenn das Spiel beendet wird
 	else:
 		run_player_controlled_game()
+
+	env.close()  # Schließe die Umgebung, wenn das Spiel beendet wird
+
+def render_trained_model():
+	env = CustomGameEnv()
+	model = PPO.load("ppo_customgame", env=env)
+
+	obs = env.reset()
+	while True:
+		action, _states = model.predict(obs, deterministic=True)
+		obs, rewards, done, info = env.step(action)
+		env.render()
+		if done:
+			obs = env.reset()
 
 if __name__ == "__main__":
 	main()

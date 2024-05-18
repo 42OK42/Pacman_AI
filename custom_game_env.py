@@ -2,7 +2,7 @@ import pygame
 import gym
 from gym import spaces
 import numpy as np
-from settings import RENDER, AI_MODE, background_color, tile_size, bullet_move_interval, win_message_background_color, font, BLACK, WHITE
+from settings import RENDER, AI_MODE, background_color, tile_size, bullet_move_interval, win_message_background_color, font, BLACK, WHITE, maximum_bullets, player_move_intervall
 from rendering import render_text_center, render_text
 from assets import coin_image, end_image, player_image, opponent_image, bullet_image
 from game_functions import move_player, is_walkable_player, check_if_player_is_at_coin, collect_coin, screen_width, screen_height
@@ -15,7 +15,9 @@ class CustomGameEnv(gym.Env):
 	def __init__(self):
 		super(CustomGameEnv, self).__init__()
 		self.action_space = spaces.Discrete(4)  # 4 mögliche Aktionen: oben, unten, links, rechts
-		self.observation_space = spaces.Box(low=0, high=255, shape=(screen_height, screen_width, 3), dtype=np.uint8)
+		self.last_action_time = 0  # Zeitpunkt der letzten Aktion
+		self.action_delay = player_move_intervall  # Mindestzeit zwischen Aktionen in Millisekunden (1 Aktion pro Sekunde)
+		self.last_observation = None  
 
 		if RENDER:
 			pygame.init()
@@ -25,6 +27,9 @@ class CustomGameEnv(gym.Env):
 		self.clock = pygame.time.Clock()
 		self.updated_rects = []
 		self.initialize_game()
+
+		num_features = 2 + 2 * len(self.coin_positions) + 2 * len(self.opponents) + 2 * maximum_bullets
+		self.observation_space = spaces.Box(low=-np.inf, high=np.inf, shape=(num_features,), dtype=np.float32)
 
 	def initialize_game(self):
 		self.level_map = load_level('level.txt')
@@ -57,7 +62,21 @@ class CustomGameEnv(gym.Env):
 			self.draw_game_elements()  # Diese Methode sollte alle dynamischen Elemente zeichnen.
 			pygame.display.update()
 
+	def seed(self, seed=None):
+		# Diese Methode setzt den Zufallssamen für die Umgebung.
+		self.np_random, seed = gym.utils.seeding.np_random(seed)
+		# Stelle sicher, dass alle anderen Komponenten, die Zufallszahlen verwenden, auch gesetzt werden.
+		# Zum Beispiel, wenn du Zufälligkeiten in der Initialisierung der Level oder der Gegner hast.
+		return [seed]
+
 	def step(self, action):
+		current_time = pygame.time.get_ticks()
+		if current_time - self.last_action_time < self.action_delay:
+			# Wenn die Aktion zu früh kommt, gib den letzten gültigen Zustand zurück
+			return self.last_observation, 0, False, {}  # Keine Aktion ausgeführt, keine Belohnung, Spiel nicht beendet
+
+		self.last_action_time = current_time  # Aktualisiere die Zeit der letzten Aktion
+
 		# Führe die Aktion aus und aktualisiere den Zustand des Spiels
 		self.update_game(action)
 
@@ -74,16 +93,44 @@ class CustomGameEnv(gym.Env):
 		if RENDER:
 			self.redraw_updated_areas()
 
-		# Erstelle eine Beobachtung des neuen Zustands (optional, abhängig von deinen Anforderungen)
+		# Erstelle eine Beobachtung des neuen Zustands
 		obs = self.create_observation()
+		self.last_observation = obs  # Aktualisiere last_observation für den nächsten Schritt
 
 		return obs, reward, done, info
 
 	def create_observation(self):
-		# Diese Methode sollte den aktuellen Zustand der Umgebung in einer Form zurückgeben,
-		# die von deinem Agenten interpretiert werden kann.
-		# Beispiel:
-		return pygame.surfarray.array3d(self.screen)
+		# Beispiel für die Erstellung eines Zustandsvektors
+		state = np.zeros(self.observation_space.shape[0], dtype=np.float32)
+		index = 0
+
+		# Spielerposition
+		state[index:index+2] = self.player_position
+		index += 2
+		
+		# Positionen der Münzen
+		for pos in self.coin_positions:
+			state[index:index+2] = pos
+			index += 2
+		
+		# Positionen der Gegner
+		for opponent in self.opponents:
+			state[index:index+2] = opponent.position
+			index += 2
+		
+		# Positionen der Geschosse
+		bullet_positions = []
+		for opponent in self.opponents:
+			for bullet in opponent.bullets:
+				if len(bullet_positions) // 2 < maximum_bullets:
+					bullet_positions.extend(bullet.position)
+		
+		# Fülle fehlende Bullet-Positionen
+		for _ in range(maximum_bullets - len(bullet_positions) // 2):
+			bullet_positions.extend([-1, -1])  # Verwende -1 als Platzhalter für fehlende Geschosse
+
+		state[index:index+2*maximum_bullets] = bullet_positions
+		return state
 
 	def update_game(self, action):
 		if action != -1:
@@ -204,8 +251,8 @@ class CustomGameEnv(gym.Env):
 
 	def reset(self):
 		self.initialize_game()
-		initial_observation = pygame.surfarray.array3d(pygame.display.get_surface())
-		return initial_observation
+		self.last_observation = self.create_observation()  # Setze last_observation auf den Startzustand
+		return self.last_observation
 
 	def render(self, mode='human'):
 		if not RENDER:

@@ -7,6 +7,8 @@ AI_MODE = True # Setze dies auf False, um den manuellen Spielmodus zu aktivieren
 
 RENDER = True  # Setze dies auf False, um das Rendering während des Trainings zu deaktivieren. Geht nur wenn AI_MODE = True
 
+LOAD_MODEL = False
+
 debug_opponent = False
 debug_main = False
 debug_game_functions = False
@@ -25,6 +27,11 @@ shoot_interval_opponet = 1000
 
 bullet_step_size = tile_size # Geschwindigkeit der Kugel
 bullet_move_interval = 300 # Intervall in Millisekunden, in dem die Kugeln bewegt werden
+
+# AI_Settings
+maximum_bullets = 15
+player_move_intervall = 750
+num_parallel_models = 5
 
 # Farbdefinitionen
 BLACK = (0, 0, 0)

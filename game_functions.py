@@ -1,5 +1,5 @@
 import pygame
-from settings import tile_size, info_panel_width, opponent_step_size, debug_game_functions, BLACK
+from settings import tile_size, info_panel_width, opponent_step_size, debug_game_functions, BLACK, background_color
 from assets import coin_image, end_image, player_image, opponent_image
 from level import level_map, draw_level
 
@@ -36,7 +36,7 @@ def setup_game(level_map):
 setup_game(level_map)
 
 def initialize_game_screen(screen, exit_position, coin_positions, player_position, opponents):
-	screen.fill(BLACK)
+	screen.fill(background_color)
 	draw_level(screen, level_map)
 	screen.blit(player_image, player_position)
 	for coin_pos in coin_positions:
